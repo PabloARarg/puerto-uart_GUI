@@ -12,14 +12,14 @@ class Grafica(Frame):
         self.datos_arduino = Comunicacion()
         self.actualizar_puertos()
 
-        self.muestra = 100
+        self.muestra = 1000
         self.datos = 0.0
 
-        self.fig, ax = plt.subplots(facecolor='#000000', dpi=100, figsize=(4, 2))
-        plt.title("Graficar Datos de Arduino", color='white', size=12, family="Arial")
+        self.fig, ax = plt.subplots(facecolor='black', dpi=100, figsize=(4, 2))
+        plt.title("Graficar Datos", color='white', size=12, family="Arial")
         ax.tick_params(direction='out', length=5, width=2,
                        colors='white',
-                       grid_color='r', grid_alpha=0.5)
+                       grid_color='b', grid_alpha=0.5)
 
         self.line, = ax.plot([], [], color='m', marker='o',
                              linewidth=2, markersize=1, markeredgecolor='m')
@@ -28,7 +28,7 @@ class Grafica(Frame):
                               linewidth=2, markersize=1, markeredgecolor='g')
 
         plt.xlim([0, self.muestra])
-        plt.ylim([-5, 6])
+        plt.ylim([-1, 6])
 
         ax.set_facecolor('#6E6D7000')
         ax.spines['bottom'].set_color('blue')
@@ -70,26 +70,32 @@ class Grafica(Frame):
         self.bt_reanudar.config(state='disabled')
 
     def widgets(self):
+
+        ## define los frames en lo que se divide la interface grafica
         frame = Frame(self.master, bg='gray50', bd=2)
-        frame.grid(column=0, columnspan=2, row=0, sticky='nsew')
-        frame1 = Frame(self.master, bg='black')
-        frame1.grid(column=2, row=0, sticky='nsew')
-        frame4 = Frame(self.master, bg='black')
+        frame.grid(column=0, columnspan=4, row=0, sticky='nsew')
+        frame1 = Frame(self.master, bg='white')
+        frame1.grid(column=3, row=1, sticky='nsew')
+        frame4 = Frame(self.master, bg='red')
         frame4.grid(column=0, row=1, sticky='nsew')
-        frame2 = Frame(self.master, bg='black')
+        frame2 = Frame(self.master, bg='blue')              
         frame2.grid(column=1, row=1, sticky='nsew')
-        frame3 = Frame(self.master, bg='black')
+        frame3 = Frame(self.master, bg='green')             
         frame3.grid(column=2, row=1, sticky='nsew')
 
+        ## establece los tamaños relatitivos de ecpancion de las filar y columas
         self.master.columnconfigure(0, weight=1)
         self.master.columnconfigure(1, weight=1)
         self.master.columnconfigure(2, weight=1)
-        self.master.rowconfigure(0, weight=5)
+        self.master.columnconfigure(3, weight=1)
+        self.master.rowconfigure(0, weight=15)
         self.master.rowconfigure(1, weight=1)
 
+        ## define un widget para la grafica y la vincula a un frame
         self.canvas = FigureCanvasTkAgg(self.fig, master=frame)
         self.canvas.get_tk_widget().pack(padx=0, pady=0, expand=True, fill='both')
 
+        ## define  botones
         self.bt_graficar = Button(frame4, text='Graficar Datos', font=('Arial', 12, 'bold'),
                                 width=12, bg='purple4', fg='white', command=self.iniciar)
         self.bt_graficar.pack(pady=5, expand=1)
@@ -102,8 +108,11 @@ class Grafica(Frame):
                                 width=12, bg='green', fg='white', command=self.reanudar)
         self.bt_reanudar.pack(pady=5, expand=1)
 
+        '''
+        ## define una imagen
         self.logo = PhotoImage(file='logo1.png')
         Label(frame2, text='Control Analógico', font=('Arial', 15), bg='black', fg='white').pack(padx=5, expand=1)
+        ## define la barras laterales
         style = ttk.Style()
         style.configure("Horizontal.TScale", background='black')
 
@@ -113,34 +122,36 @@ class Grafica(Frame):
 
         self.slider_dos = ttk.Scale(frame2, command=self.dato_slider_dos, state='disabled', to=255,
                                     from_=0, orient='horizontal', length=280, style='TScale')
-        self.slider_dos.pack(pady=5, expand=1)
+        self.slider_dos.pack(pady=5, expand=1) 
+        #'''
 
         port = self.datos_arduino.puertos
         baud = self.datos_arduino.baudrates
 
-        Label(frame1, text='Puertos COM', bg='black', fg='white', font=('Arial', 12, 'bold')).pack(padx=5, expand=1)
-        self.combobox_port = ttk.Combobox(frame1, values=port, justify='center', width=12, font='Arial')
+        Label(frame2, text='Puertos COM', bg='black', fg='white', font=('Arial', 12, 'bold')).pack(padx=5, expand=1)
+        self.combobox_port = ttk.Combobox(frame2, values=port, justify='center', width=12, font='Arial')
         self.combobox_port.pack(pady=0, expand=1)
         self.combobox_port.current(0)
 
-        Label(frame1, text='Baudrates', bg='black', fg='white', font=('Arial', 12, 'bold')).pack(padx=5, expand=1)
-        self.combobox_baud = ttk.Combobox(frame1, values=baud, justify='center', width=12, font='Arial')
+        Label(frame2, text='Baudrates', bg='black', fg='white', font=('Arial', 12, 'bold')).pack(padx=5, expand=1)
+        self.combobox_baud = ttk.Combobox(frame2, values=baud, justify='center', width=12, font='Arial')
         self.combobox_baud.pack(padx=20, expand=1)
         self.combobox_baud.current(3)
 
-        self.bt_conectar = Button(frame1, text='Conectar', font=('Arial', 12, 'bold'), width=12, bg='green2',
+        self.bt_conectar = Button(frame3, text='Conectar', font=('Arial', 12, 'bold'), width=12, bg='green2',
                                 command=self.conectar_serial)
         self.bt_conectar.pack(pady=5, expand=1)
 
-        self.bt_actualizar = Button(frame1, text='Actualizar', font=('Arial', 12, 'bold'), width=12, bg='magenta',
+        self.bt_actualizar = Button(frame3, text='Actualizar', font=('Arial', 12, 'bold'), width=12, bg='magenta',
                                     command=self.actualizar_puertos)
         self.bt_actualizar.pack(pady=5, expand=1)
 
-        self.bt_desconectar = Button(frame1, state='disabled', text='Desconectar', font=('Arial', 12, 'bold'),
+        self.bt_desconectar = Button(frame3, state='disabled', text='Desconectar', font=('Arial', 12, 'bold'),
                                     width=12, bg='red2', command=self.desconectar_serial)
         self.bt_desconectar.pack(pady=5, expand=1)
 
-        Label(frame3, image=self.logo, bg='black').pack(pady=5, expand=1)
+
+        #Label(frame3, image=self.logo, bg='black').pack(pady=5, expand=1)
 
     def actualizar_puertos(self):
         self.datos_arduino.puertos_disponibles()
@@ -148,8 +159,8 @@ class Grafica(Frame):
     def conectar_serial(self):
         self.bt_conectar.config(state='disabled')
         self.bt_desconectar.config(state='normal')
-        self.slider_uno.config(state='normal')
-        self.slider_dos.config(state='normal')
+        #self.slider_uno.config(state='normal')
+        #self.slider_dos.config(state='normal')
         self.bt_graficar.config(state='normal')
         self.bt_reanudar.config(state='disabled')
 
@@ -161,14 +172,15 @@ class Grafica(Frame):
         self.bt_conectar.config(state='normal')
         self.bt_desconectar.config(state='disabled')
         self.bt_pausar.config(state='disabled')
-        self.slider_uno.config(state='disabled')
-        self.slider_dos.config(state='disabled')
+        #self.slider_uno.config(state='disabled')
+        #self.slider_dos.config(state='disabled')
         try:
             self.ani.event_source.stop()
         except AttributeError:
             pass
         self.datos_arduino.desconectar()
-
+    
+    '''
     def dato_slider_uno(self, *args):
         dato = '1,' + str(int(self.slider_uno.get()))
         self.datos_arduino.enviar_datos(dato)
@@ -176,7 +188,7 @@ class Grafica(Frame):
     def dato_slider_dos(self, *args):
         dato = '2,' + str(int(self.slider_dos.get()))
         self.datos_arduino.enviar_datos(dato)
-
+    #'''
 if __name__ == "__main__":
     ventana = Tk()
     ventana.geometry('742x535')
